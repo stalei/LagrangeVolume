@@ -21,32 +21,58 @@ from yt.analysis_modules.halo_analysis.api import *
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("snap", type=str)
-    parser.add_argument("halo",type=str)
-    parser.add_argument("contamination", type=int)
-    parser.add_argument("extractshape", type=int)
+    parser.add_argument("fsnap", type=str)
+    parser.add_argument("isnap", type=str)
+    parser.add_argument("HaloCatalog",type=str)
+    parser.add_argument("TargetHalo", type=int)
     args = parser.parse_args()
-    ds = yt.load(args.snap)#, unit_base=unit_base1)#,unit_system='galactic')
-    if ds is None:
+    dsfinal = yt.load(args.fsnap)#, unit_base=unit_base1)#,unit_system='galactic')
+    dsinitial = yt.load(args.isnap)
+    if dsfinal is None or dsinitial is None:
         print ("Error, sorry, I couldn't read the snapshot.!")
         sys.exit(1)
-    print("Length unit: ", ds.length_unit.in_units('Mpc'))
-    print("Time unit: ", ds.time_unit.in_units('Gyr'))
-    print("Mass unit: ", ds.mass_unit.in_units('Msun'))
-    print("Velocity unit: ", ds.velocity_unit.in_units('km/s'))
+    #print("Length unit: ", ds.length_unit.in_units('Mpc'))
+    #print("Time unit: ", ds.time_unit.in_units('Gyr'))
+    #print("Mass unit: ", ds.mass_unit.in_units('Msun'))
+    #print("Velocity unit: ", ds.velocity_unit.in_units('km/s'))
     #dh=yt.load(args.halo)
-    dh=np.genfromtxt(args.halo, skip_header=18)
+    dh = yt.load(args.HaloCatalog)
     if dh is None:
         print ("Error, sorry, I couldn't read the halo binary file.!")
         sys.exit(1)
-    Idh=np.array(dh[:,0])
-    #CountAll= len(id)
-    p=5000
-    UpperMass=1.0e13
-    LowerMass=1.5e11
-    pnumh=np.array(dh[:,1])
-    Mvirh=np.array(dh[:,2])
-    Rvirh=np.array(dh[:,4])# in kpc
-    xhalo=np.array(dh[:,8])
-    yhalo=np.array(dh[:,9])
-    zhalo=np.array(dh[:,10])
+    adh = dh.all_data()
+    # halo masses
+    #print(ad["halos", "particle_mass"])
+    hMv=adh["halos", "particle_mass"]
+    hRv=adh["halos", "virial_radius"]
+    hid=adh["halos", "particle_identifier"]  particle_position_(x,y,z)
+    hx=adh["halos", "particle_position_x"]
+    hy=adh["halos", "particle_position_y"]
+    hz=adh["halos", "particle_position_z"]
+    #
+    Rvir=hRv[hid==args.TargetHalo]
+    Rvir/=1000. # convert to Mpc
+    halox=hx[hid==args.TargetHalo]
+    haloy=hy[hid==args.TargetHalo]
+    haloz=hz[hid==args.TargetHalo]
+    #
+    adf = dsfinal.all_data()
+    coordinatesF = adf[("Halo","Coordinates")]
+    xf=coordinatesF[:,0]
+    yf=coordinatesF[:,1]
+    zf=coordinatesF[:,2]
+    idsF = adf[("Halo","ParticleIDs")] #ParticleIDs or particle_index
+    rF=np.sqrt((halox.v-xf.v)**2.+(haloy.v-yf.v)**2.+(haloz.v-zf.v)**2.)
+    idList=idsF[rF<Rvir]
+    #
+    adi = dsfinal.all_data()
+    coordinatesI = adi[("Halo","Coordinates")]
+    idsI = adi[("Halo","ParticleIDs")] #ParticleIDs or particle_index
+    LagCoords=coordinatesI[idsI==idList]
+    boundary=np.zeros((2,3))
+    for i in range(0,3):
+        boundary[0,i]=np.min(LagCoords[:,i]) # (min max, x y z)
+        boundary[1,i]=np.max(Lagcoords[:,i])
+    print("Lagrange box is(x,y,z):")
+    print(boundary)
+    #
