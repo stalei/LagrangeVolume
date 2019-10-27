@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.legend_handler import HandlerLine2D
 from mpl_toolkits.mplot3d import Axes3D
-
+import argparse
 
 ########################################################### Data source
 # #id num_p mvir mbound_vir rvir vmax rvmax vrms x y z vx vy vz Jx Jy Jz E Spin PosUncertainty VelUncertainty
@@ -18,15 +18,16 @@ from mpl_toolkits.mplot3d import Axes3D
 #b_to_a(500c) c_to_a(500c) A[x](500c) A[y](500c) A[z](500c) Rs Rs_Klypin T/|U| M_pe_Behroozi M_pe_Diemer
 #Halfmass_Radius idx i_so i_ph num_cp mmetric
 
-#how to run: python SelectHalo.py halo_catalog num_limit M_high M_low
+#how to run: python SelectHalo.py halo_catalog num_limit M_high M_low Plot_dwarfs
 #example: $python ShapeAnalysis.py snap_264 halos_0.0.bin 1 1
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("HaloCatalog",type=str)
 	parser.add_argument("num_limit", type=int)
-	parser.add_argument("M_high", type=double)
-	parser.add_argument("M_low", type=double)
+	parser.add_argument("M_high", type=float)
+	parser.add_argument("M_low", type=float)
+	parser.add_argument("plotDwarfs", type=int)
 	args = parser.parse_args()
 	data=np.genfromtxt(args.HaloCatalog, skip_header=18)#,names=True, skip_header=5)
 	IdAll=np.array(data[:,0])
@@ -100,9 +101,9 @@ if __name__ == "__main__":
 
 	for i in range(len(X)):
 		ax.scatter(X[i],Y[i],Z[i],c='black', alpha=0.6, marker='.',s=15)#,s= (10.0*np.log10(Mvir[i])))
-		#ax.text(X[i],Y[i],Z[i],'%s-%3.2s' %(str(Id[i]),str(np.log10(Mvir[i]))), size=9)
-
-	#ax.scatter(XDwarfs,YDwarfs,ZDwarfs,c='gray',alpha=0.5,marker='.',s=1)
+		ax.text(X[i],Y[i],Z[i],'%s' %str(Id[i]), size=7)
+	if args.plotDwarfs==1:
+		ax.scatter(XDwarfs,YDwarfs,ZDwarfs,c='gray',alpha=0.5,marker='.',s=1)
 
 	fig.set_size_inches(14,8)
 	ax.set_xlabel('X (Mpc)')
