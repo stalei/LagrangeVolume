@@ -19,7 +19,7 @@ import argparse
 #Halfmass_Radius idx i_so i_ph num_cp mmetric
 
 #how to run: python SelectHalo.py halo_catalog num_limit M_high M_low Plot_dwarfs
-#example: $python ShapeAnalysis.py snap_264 halos_0.0.bin 1 1
+#example: $python SelectHalo.py halos_0.0_G.ascii 250 1.25e12 1.2e12 1
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
