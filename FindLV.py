@@ -66,14 +66,34 @@ if __name__ == "__main__":
     rF=np.sqrt((halox-xf.v)**2.+(haloy-yf.v)**2.+(haloz-zf.v)**2.)#np.sqrt((halox.v-xf.v)**2.+(haloy.v-yf.v)**2.+(haloz.v-zf.v)**2.)
     idList=idsF[rF<Rvir]
     #
-    adi = dsfinal.all_data()
+    maxID=np.max(idList)
+    minID=np.min(idList)
+    print(idList.v)
+    adi = dsinitial.all_data()
     coordinatesI = adi[("Halo","Coordinates")]
+    xi=coordinatesI[:,0]
+    yi=coordinatesI[:,1]
+    zi=coordinatesI[:,2]
     idsI = adi[("Halo","ParticleIDs")] #ParticleIDs or particle_index
-    LagCoords=coordinatesI[idsI==idList]
+    print(coordinatesI[idsI.v<1000])
+    #LagCoords=coordinatesI[idsI==idList]
+    #print(LagCoords)
     boundary=np.zeros((2,3))
     for i in range(0,3):
-        boundary[0,i]=np.min(LagCoords[:,i]) # (min max, x y z)
-        boundary[1,i]=np.max(Lagcoords[:,i])
-    print("Lagrange box is(x,y,z):")
+        boundary[0,i]=10000;
+    for i in range(0,3):
+        ps=coordinatesI[:,i]
+        for pid in idList:
+        #for i in range(0,3):
+            pi=ps[idsI==pid]
+            if pi>boundary[1,i]:
+                boundary[1,i]=pi;
+            if pi<boundary[0,i]:
+                boundary[0,i]=pi
+    #boundary=np.zeros((2,3))
+    #for i in range(0,3):
+    #    boundary[0,i]=np.min(LagCoords[:,i]) # (min max, x y z)
+    #    boundary[1,i]=np.max(Lagcoords[:,i])
+    print("Lagrange box is min/max (x,y,z):")
     print(boundary)
     #
