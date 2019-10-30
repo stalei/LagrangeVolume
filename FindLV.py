@@ -17,7 +17,7 @@ import argparse
 
 
 #how to run: python FindLV.py final_snapshot_file first_snapshot_file halo_catalog halo_id
-#example: $python FindLV.py snap_263 ics_256_100.dat halos_0.0_G.bin 11
+#example: $python FindLV.py snap_263 ics_256_100.dat halos_0.0_G.ascii 11
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -65,17 +65,12 @@ if __name__ == "__main__":
     idsF = adf[("Halo","ParticleIDs")] #ParticleIDs or particle_index
     rF=np.sqrt((halox-xf.v)**2.+(haloy-yf.v)**2.+(haloz-zf.v)**2.)#np.sqrt((halox.v-xf.v)**2.+(haloy.v-yf.v)**2.+(haloz.v-zf.v)**2.)
     idList=idsF[rF<Rvir]
-    #
-    maxID=np.max(idList)
-    minID=np.min(idList)
-    print(idList.v)
     adi = dsinitial.all_data()
     coordinatesI = adi[("Halo","Coordinates")]
     xi=coordinatesI[:,0]
     yi=coordinatesI[:,1]
     zi=coordinatesI[:,2]
     idsI = adi[("Halo","ParticleIDs")] #ParticleIDs or particle_index
-    print(coordinatesI[idsI.v<1000])
     #LagCoords=coordinatesI[idsI==idList]
     #print(LagCoords)
     boundary=np.zeros((2,3))
@@ -94,6 +89,8 @@ if __name__ == "__main__":
     #for i in range(0,3):
     #    boundary[0,i]=np.min(LagCoords[:,i]) # (min max, x y z)
     #    boundary[1,i]=np.max(Lagcoords[:,i])
+    print("for halo (id-x-y-z-Rvir):")
+    print(args.TargetHalo,halox,haloy,haloz,Rvir)
     print("Lagrange box is min/max (x,y,z):")
     print(boundary)
     #
