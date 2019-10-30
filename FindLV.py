@@ -11,13 +11,13 @@ import yt
 import numpy as np
 from yt.analysis_modules.halo_finding.api import *
 from yt.analysis_modules.halo_analysis.api import *
-
+import argparse
 
 
 
 
 #how to run: python FindLV.py final_snapshot_file first_snapshot_file halo_catalog halo_id
-#example: $python FindLV.py snap_264 snap_000 halos_0.0.ascii 12
+#example: $python FindLV.py snap_263 ics_256_100.dat halos_0.0_G.bin 11
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -36,19 +36,20 @@ if __name__ == "__main__":
     #print("Mass unit: ", ds.mass_unit.in_units('Msun'))
     #print("Velocity unit: ", ds.velocity_unit.in_units('km/s'))
     #dh=yt.load(args.halo)
-    dh = yt.load(args.HaloCatalog)
+    dh =np.genfromtxt(args.HaloCatalog, skip_header=18)# yt.load('halos_0.0_G.bin')#args.HaloCatalog)
     if dh is None:
         print ("Error, sorry, I couldn't read the halo binary file.!")
         sys.exit(1)
-    adh = dh.all_data()
+    #adh = dh.all_data()
     # halo masses
+    #dh.field_list()
     #print(ad["halos", "particle_mass"])
-    hMv=adh["halos", "particle_mass"]
-    hRv=adh["halos", "virial_radius"]
-    hid=adh["halos", "particle_identifier"]  particle_position_(x,y,z)
-    hx=adh["halos", "particle_position_x"]
-    hy=adh["halos", "particle_position_y"]
-    hz=adh["halos", "particle_position_z"]
+    #hMv=adh["halos", "particle_mass"]
+    hRv=np.array(dh[:,4])#adh["halos", "virial_radius"]
+    hid=np.array(dh[:,0])#adh["halos", "particle_identifier"] # particle_position_(x,y,z)
+    hx=np.array(dh[:,8])#adh["halos", "particle_position_x"]
+    hy=np.array(dh[:,9])#adh["halos", "particle_position_y"]
+    hz=np.array(dh[:,10])#adh["halos", "particle_position_z"]
     #
     Rvir=hRv[hid==args.TargetHalo]
     Rvir/=1000. # convert to Mpc
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     yf=coordinatesF[:,1]
     zf=coordinatesF[:,2]
     idsF = adf[("Halo","ParticleIDs")] #ParticleIDs or particle_index
-    rF=np.sqrt((halox.v-xf.v)**2.+(haloy.v-yf.v)**2.+(haloz.v-zf.v)**2.)
+    rF=np.sqrt((halox-xf.v)**2.+(haloy-yf.v)**2.+(haloz-zf.v)**2.)#np.sqrt((halox.v-xf.v)**2.+(haloy.v-yf.v)**2.+(haloz.v-zf.v)**2.)
     idList=idsF[rF<Rvir]
     #
     adi = dsfinal.all_data()
