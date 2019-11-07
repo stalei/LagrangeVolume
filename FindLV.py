@@ -64,7 +64,7 @@ if __name__ == "__main__":
     zf=coordinatesF[:,2]
     idsF = adf[("Halo","ParticleIDs")] #ParticleIDs or particle_index
     rF=np.sqrt((halox-xf.v)**2.+(haloy-yf.v)**2.+(haloz-zf.v)**2.)#np.sqrt((halox.v-xf.v)**2.+(haloy.v-yf.v)**2.+(haloz.v-zf.v)**2.)
-    idList=idsF[rF<Rvir]
+    idList=idsF[rF<(1.4*Rvir)]
     adi = dsinitial.all_data()
     coordinatesI = adi[("Halo","Coordinates")]
     xi=coordinatesI[:,0]
